@@ -48,6 +48,11 @@ namespace windynworkspaces
 
         private readonly string[] args = Environment.GetCommandLineArgs();
 
+        /// <summary>
+        /// Determines if a virtual desktop contains any windows or not
+        /// </summary>
+        /// <param name="desktop">the virtual desktop to check</param>
+        /// <returns>true if the virtual desktop contains any windows, false otherwise</returns>
         private bool VirtualDesktopContainsAnyWindow(VirtualDesktop desktop)
         {
             foreach (var window in OpenWindowGetter.GetOpenWindows())
@@ -61,6 +66,10 @@ namespace windynworkspaces
             return false;
         }
 
+        /// <summary>
+        /// Get all empty virtual desktops
+        /// </summary>
+        /// <returns>an array of all empty virtual desktops</returns>
         private VirtualDesktop[] GetEmptyDesktops()
         {
             VirtualDesktop[] desktops = VirtualDesktop.GetDesktops();
@@ -79,6 +88,11 @@ namespace windynworkspaces
 
         private DateTime lastUpdate = DateTime.Now;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="automationEventArgs"></param>
         private void TriggerDynamicUpdate(object sender, AutomationEventArgs automationEventArgs)
         {
             // only update every 1s to prevent as much lag
@@ -89,7 +103,7 @@ namespace windynworkspaces
 
             lastUpdate = DateTime.Now;
 
-            Log("Dynamic update triggered");
+            Log("Dynamic update triggered", false);
 
             // get all desktops
             this.Invoke((MethodInvoker)delegate
@@ -98,56 +112,79 @@ namespace windynworkspaces
                 {
                     VirtualDesktop[] desktops = GetEmptyDesktops();
 
-                    if (desktops.Length == 1) {
+                    Log($" - found {desktops.Length} empty desktops", true, false);
+
+                    if (desktops.Length == 1)
+                    {
                         return;
                     }
                     else if (desktops.Length == 0)
                     {
-                        Log("Creating new desktop");
-                        VirtualDesktop.Create();
+                        Log("Creating new desktop", false);
+                        desktops = new VirtualDesktop[] { VirtualDesktop.Create() };
+                        Log($"- id {desktops[0].Id}", true, false);
                         return;
                     }
 
                     // delete all virtual desktops but the last one
-                    for (int  i = 0; i < desktops.Length - 1; i++)
+                    for (int i = 0; i < desktops.Length - 1; i++)
                     {
-                        Log($"Removing desktop {desktops[i].Id}");
-                        desktops[i].Remove();
+                        if (desktops[i].Id != VirtualDesktop.Current.Id)
+                        {
+                            Log($"Removing desktop {desktops[i].Id}");
+                            desktops[i].Remove();
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Log($"Exception: {ex.Message}");
                 }
-
-                Log("Dynamic update complete");
             });
+
+            // move desktop to the end
+            this.Invoke((MethodInvoker)delegate
+            {
+                try
+                {
+                    Log("Moving desktop to the end");
+                    GetEmptyDesktops()[0].Move(VirtualDesktop.GetDesktops().Length - 1);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Exception: {ex.Message}");
+                }
+            });
+
+            Log("Dynamic update complete");
         }
 
-        public void Log(string message)
+        /// <summary>
+        /// Log a message to the log box
+        /// </summary>
+        /// <param name="message">the message to log</param>
+        /// <param name="newLine">whether to include a new line after the message</param>
+        /// <param name="timestamp">whether to include a timestamp before the message</param>
+        public void Log(string message, bool newLine = true, bool timestamp = true)
         {
             if (this.logBox.InvokeRequired)
             {
-                this.logBox.Invoke(new Action<string>(Log), new object[] { message });
+                this.logBox.Invoke(new Action<string, bool, bool>(Log), new object[] { message, newLine, timestamp });
             }
             else
             {
-                this.logBox.AppendText(message + Environment.NewLine);
+                this.logBox.AppendText($"{(timestamp ? $"[{DateTime.Now.ToString("HH:mm:ss")}]" : "")} {message}{(newLine ? Environment.NewLine : "")}");
             }
         }
 
-        // called when a user preference changes
-        private async void UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        /// <summary>
+        /// forcibly trigger an update of the virtual desktops
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void forceUpdate_Click(object sender, EventArgs e)
         {
-            Log($"User preference changing. Category: {e.Category}");
-            //if (e.Category == UserPreferenceCategory.Desktop)
-            //{
-            await Task.Delay(1000);
-            //}
-        }
-
-        private void forceSetAccent_Click(object sender, EventArgs e)
-        {
+            lastUpdate = DateTime.MinValue; // force update
             TriggerDynamicUpdate(sender, null);
         }
 
@@ -172,7 +209,8 @@ namespace windynworkspaces
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SystemEvents.UserPreferenceChanged -= UserPreferenceChanged;
+            Log("Exiting");
+            Automation.RemoveAllEventHandlers();
         }
 
         private void end_Click(object sender, EventArgs e)

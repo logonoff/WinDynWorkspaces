@@ -1,3 +1,7 @@
+/**
+ * Credit https://www.tcx.be/blog/2006/list-open-windows/
+ * https://stackoverflow.com/a/43640787
+ */
 namespace windynworkspaces
 {
     using System;

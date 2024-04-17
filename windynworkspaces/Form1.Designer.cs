@@ -37,7 +37,7 @@ namespace windynworkspaces
             richTextBox1 = new RichTextBox();
             end = new Button();
             logBox = new TextBox();
-            forceSetAccent = new Button();
+            forceUpdate = new Button();
             SuspendLayout();
             //
             // trayIcon
@@ -82,21 +82,21 @@ namespace windynworkspaces
             logBox.Size = new System.Drawing.Size(310, 208);
             logBox.TabIndex = 1;
             //
-            // forceSetAccent
+            // forceUpdate
             //
-            forceSetAccent.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            forceSetAccent.Location = new System.Drawing.Point(111, 226);
-            forceSetAccent.Name = "forceSetAccent";
-            forceSetAccent.Size = new System.Drawing.Size(130, 23);
-            forceSetAccent.TabIndex = 0;
-            forceSetAccent.Text = "Change accent now";
-            forceSetAccent.UseVisualStyleBackColor = true;
-            forceSetAccent.Click += forceSetAccent_Click;
+            forceUpdate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            forceUpdate.Location = new System.Drawing.Point(141, 226);
+            forceUpdate.Name = "forceUpdate";
+            forceUpdate.Size = new System.Drawing.Size(100, 23);
+            forceUpdate.TabIndex = 0;
+            forceUpdate.Text = "Update now";
+            forceUpdate.UseVisualStyleBackColor = true;
+            forceUpdate.Click += forceUpdate_Click;
             //
             // Form1
             //
             ClientSize = new System.Drawing.Size(334, 261);
-            Controls.Add(forceSetAccent);
+            Controls.Add(forceUpdate);
             Controls.Add(logBox);
             Controls.Add(end);
             MaximizeBox = false;
@@ -116,6 +116,6 @@ namespace windynworkspaces
         private RichTextBox richTextBox1;
         private Button end;
         private TextBox logBox;
-        private Button forceSetAccent;
+        private Button forceUpdate;
     }
 }
