@@ -8,9 +8,9 @@ upon opening / closing a window, find any empty workspaces, delete all but one. 
 please do, i have no idea what i'm doing
 
 credits:
-- @Splitwirez - event handling inspiration
-- @spitfirex86 - ui
-- @michalpv - emotional support and api help
+- [@Splitwirez](https://github.com/Splitwirez) - event handling inspiration
+- [@spitfirex86](https://github.com/spitfirex86) - ui
+- [@michalpv](https://github.com/michalpv) - emotional support and api help
 
 ## License
 MIT. do whatever you want with this, but please send patches over if you make it better
