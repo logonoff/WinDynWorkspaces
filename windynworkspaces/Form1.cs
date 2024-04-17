@@ -11,6 +11,11 @@ namespace windynworkspaces
 {
     public partial class Form1 : Form
     {
+        /// <summary>
+        /// The cooldown between dynamic updates in milliseconds
+        /// </summary>
+        private int cooldown = 300;
+
         public Form1()
         {
             InitializeComponent();
@@ -26,7 +31,13 @@ namespace windynworkspaces
                     WindowState = FormWindowState.Minimized;
                     ShowInTaskbar = false;
                     trayIcon.Visible = true;
-                    // TriggerDynamicUpdate();
+                    TriggerDynamicUpdate(null, null);
+                }
+
+                if (arg.Contains("-cooldown"))
+                {
+                    cooldown = int.Parse(arg.Split('=')[1]);
+                    Log($"Cooldown set to {cooldown}ms");
                 }
             }
 
@@ -44,6 +55,30 @@ namespace windynworkspaces
                 scope: TreeScope.Subtree,
                 eventHandler: TriggerDynamicUpdate
             );
+
+            VirtualDesktop.CurrentChanged += (sender, e) =>
+            {
+                Log("Desktop changed");
+                TriggerDynamicUpdate(sender, null);
+            };
+
+            VirtualDesktop.Created += (sender, e) =>
+            {
+                Log("Desktop created");
+                TriggerDynamicUpdate(sender, null);
+            };
+
+            VirtualDesktop.Switched += (sender, e) =>
+            {
+                Log("Desktop switched");
+                TriggerDynamicUpdate(sender, null);
+            };
+
+            VirtualDesktop.Destroyed += (sender, e) =>
+            {
+                Log("Desktop destroyed");
+                TriggerDynamicUpdate(sender, null);
+            };
         }
 
         private readonly string[] args = Environment.GetCommandLineArgs();
@@ -95,8 +130,8 @@ namespace windynworkspaces
         /// <param name="automationEventArgs"></param>
         private void TriggerDynamicUpdate(object sender, AutomationEventArgs automationEventArgs)
         {
-            // only update every 1s to prevent as much lag
-            if (DateTime.Now - lastUpdate < TimeSpan.FromMilliseconds(1000))
+            // only update every so often to prevent as much lag
+            if (DateTime.Now - lastUpdate < TimeSpan.FromMilliseconds(cooldown))
             {
                 return;
             }
@@ -114,15 +149,15 @@ namespace windynworkspaces
 
                     Log($" - found {desktops.Length} empty desktops", true, false);
 
-                    if (desktops.Length == 1)
-                    {
-                        return;
-                    }
-                    else if (desktops.Length == 0)
+                    if (desktops.Length == 0)
                     {
                         Log("Creating new desktop", false);
                         desktops = new VirtualDesktop[] { VirtualDesktop.Create() };
                         Log($"- id {desktops[0].Id}", true, false);
+                        return;
+                    }
+                    if (desktops.Length == 1)
+                    {
                         return;
                     }
 
@@ -140,11 +175,7 @@ namespace windynworkspaces
                 {
                     Log($"Exception: {ex.Message}");
                 }
-            });
 
-            // move desktop to the end
-            this.Invoke((MethodInvoker)delegate
-            {
                 try
                 {
                     Log("Moving desktop to the end");
@@ -209,8 +240,12 @@ namespace windynworkspaces
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Log("Exiting");
+            Log("Closing application");
             Automation.RemoveAllEventHandlers();
+            VirtualDesktop.CurrentChanged -= (sender, e) => { };
+            VirtualDesktop.Created -= (sender, e) => { };
+            VirtualDesktop.Switched -= (sender, e) => { };
+            VirtualDesktop.Destroyed -= (sender, e) => { };
         }
 
         private void end_Click(object sender, EventArgs e)
