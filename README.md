@@ -1,4 +1,4 @@
-# windynworkspaces
+# <img src="https://i.imgur.com/0b8fFSE.png" width="36"> windynworkspaces
 implements that one GNOME feature where you can have at least one empty virtual desktop at all times
 
 ## Technical details
