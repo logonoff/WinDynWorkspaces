@@ -1,14 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <TargetFrameworks>net8.0-windows10.0.19041.0;net7.0-windows10.0.19041.0;net6.0-windows10.0.19041.0</TargetFrameworks>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <RootNamespace>windynworkspaces</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>bruv.ico</ApplicationIcon>
     <Authors>logonoff</Authors>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <SignAssembly>False</SignAssembly>
+    <Copyright>(c) 2024 logonoff and contributors</Copyright>
+    <PackageProjectUrl>https://github.com/logonoff/windynworkspaces/</PackageProjectUrl>
+    <Description>Implements GNOME dynamic workspaces with Windows virtual desktops </Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

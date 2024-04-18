@@ -13,8 +13,7 @@ upon opening / closing a window, find any empty workspaces (virtual desktops wit
 ## Contributing
 please do, i have no idea what i'm doing
 
-credits:
-- [@Splitwirez](https://github.com/Splitwirez) - event handling inspiration
+### credits:
 - [@spitfirex86](https://github.com/spitfirex86) - ui
 - [@michalpv](https://github.com/michalpv) - emotional support and api help
 

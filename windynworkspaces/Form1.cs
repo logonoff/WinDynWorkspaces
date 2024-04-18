@@ -1,11 +1,8 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using WindowsDesktop;
 using System.Windows.Automation;
-using System.Windows.Threading;
 using System.Collections.Generic;
+using System;
 
 namespace windynworkspaces
 {
@@ -31,7 +28,6 @@ namespace windynworkspaces
                     WindowState = FormWindowState.Minimized;
                     ShowInTaskbar = false;
                     trayIcon.Visible = true;
-                    TriggerDynamicUpdate(null, null);
                 }
 
                 if (arg.Contains("-cooldown"))
@@ -41,7 +37,7 @@ namespace windynworkspaces
                 }
             }
 
-            // thank u splitwirez
+            // https://github.com/startnine/windows-sharp/blob/master/WindowsSharp/Processes/ProcessWindow.cs
             Automation.AddAutomationEventHandler(
                 eventId: WindowPattern.WindowOpenedEvent,
                 element: AutomationElement.RootElement,
@@ -81,14 +77,14 @@ namespace windynworkspaces
             };
         }
 
-        private readonly string[] args = Environment.GetCommandLineArgs();
+        private readonly string[] args = System.Environment.GetCommandLineArgs();
 
         /// <summary>
         /// Determines if a virtual desktop contains any windows or not
         /// </summary>
         /// <param name="desktop">the virtual desktop to check</param>
         /// <returns>true if the virtual desktop contains any windows, false otherwise</returns>
-        private bool VirtualDesktopContainsAnyWindow(VirtualDesktop desktop)
+        private static bool VirtualDesktopContainsAnyWindow(VirtualDesktop desktop)
         {
             foreach (var window in OpenWindowGetter.GetOpenWindows())
             {
@@ -105,7 +101,7 @@ namespace windynworkspaces
         /// Get all empty virtual desktops
         /// </summary>
         /// <returns>an array of all empty virtual desktops</returns>
-        private VirtualDesktop[] GetEmptyDesktops()
+        private static VirtualDesktop[] GetEmptyDesktops()
         {
             VirtualDesktop[] desktops = VirtualDesktop.GetDesktops();
             List<VirtualDesktop> emptyDesktops = new List<VirtualDesktop>();
@@ -124,7 +120,7 @@ namespace windynworkspaces
         private DateTime lastUpdate = DateTime.Now;
 
         /// <summary>
-        ///
+        /// Trigger a dynamic update of the virtual desktops
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="automationEventArgs"></param>
@@ -141,11 +137,11 @@ namespace windynworkspaces
             Log("Dynamic update triggered", false);
 
             // get all desktops
-            this.Invoke((MethodInvoker)delegate
+            _ = Invoke((MethodInvoker)delegate
             {
                 try
                 {
-                    VirtualDesktop[] desktops = GetEmptyDesktops();
+                    VirtualDesktop[] desktops = Form1.GetEmptyDesktops();
 
                     Log($" - found {desktops.Length} empty desktops", true, false);
 
@@ -173,7 +169,7 @@ namespace windynworkspaces
                 }
                 catch (Exception ex)
                 {
-                    Log($"Exception: {ex.Message}");
+                    Log($"Exception during update: {ex}");
                 }
 
                 try
@@ -183,7 +179,7 @@ namespace windynworkspaces
                 }
                 catch (Exception ex)
                 {
-                    Log($"Exception: {ex.Message}");
+                    Log($"Exception while moving: {ex}");
                 }
             });
 
@@ -198,13 +194,13 @@ namespace windynworkspaces
         /// <param name="timestamp">whether to include a timestamp before the message</param>
         public void Log(string message, bool newLine = true, bool timestamp = true)
         {
-            if (this.logBox.InvokeRequired)
+            if (logBox.InvokeRequired)
             {
-                this.logBox.Invoke(new Action<string, bool, bool>(Log), new object[] { message, newLine, timestamp });
+                logBox.Invoke(new Action<string, bool, bool>(Log), new object[] { message, newLine, timestamp });
             }
             else
             {
-                this.logBox.AppendText($"{(timestamp ? $"[{DateTime.Now.ToString("HH:mm:ss")}]" : "")} {message}{(newLine ? Environment.NewLine : "")}");
+                logBox.AppendText($"{(timestamp ? $"[{DateTime.Now.ToString("HH:mm:ss")}]" : "")} {message}{(newLine ? Environment.NewLine : "")}");
             }
         }
 
